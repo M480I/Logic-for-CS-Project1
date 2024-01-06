@@ -7,24 +7,25 @@ char _not = '~', _and = 'A', _or = 'O', _con = 'C';
 map<int, int> parentheses_match;
 
 
-bool is_atom(int ind) {
-    return ((str[ind] >= 'a') && (str[ind] <= 'z'));
-}
-
-
 bool is_atom(char chr) {
     return ((chr >= 'a') && (chr <= 'z'));
 }
 
 
-bool is_and_or_con(int ind) {
-    return str[ind] == _and || str[ind] == _or || str[ind] == _con;
+bool is_atom(int ind) {
+    return is_atom(str[ind]);
 }
 
 
 bool is_and_or_con(char chr) {
     return chr == _and || chr == _or || chr == _con;
 }
+
+
+bool is_and_or_con(int ind) {
+    return is_and_or_con(str[ind]);
+}
+
 
 
 string input() {
@@ -78,8 +79,8 @@ bool  fill_parentheses_match() {
 
 bool is_valid(int l, int r) {
 
-    if (r - l < 0 || l >= str.size() || r > str.size()) {
-        return true;
+    if (r - l == 0) {
+        return false;
     }
 
     if (r - l == 1) {
@@ -88,18 +89,19 @@ bool is_valid(int l, int r) {
 
     if (str[l] == '(') {
         int close = parentheses_match[l];
-        return is_valid(l + 1, close) && is_valid(close + 1, r);
+        if (close + 1 == r) {
+            return is_valid(l + 1, close);
+        }
+        return is_and_or_con(close + 1) && is_valid(close + 2, r);
     }
 
     if (str[l] == _not) {
-        return is_valid(l + 1, r) && (r - l) > 1;
+        return is_valid(l + 1, r);
     }
 
     if (is_atom(l)) {
-        return is_and_or_con(l + 1) && is_valid(l + 2, r) && (r - l) > 2;
+        return is_and_or_con(l + 1) && is_valid(l + 2, r);
     }
-
-    return false;
 
 }
 
